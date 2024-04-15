@@ -24,11 +24,18 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let glvar = match init_opengl::init_window(WIN_HEIGHT, WIN_WIDTH) {
+    let mut glvar = match init_opengl::init_window(WIN_HEIGHT, WIN_WIDTH) {
         Ok(vars) => vars,
         Err(err) => {
             eprintln!("Error while initializing window: {}", err);
             std::process::exit(1);
         }
     };
+    match init_opengl::compile_shaders() {
+        Ok(shader_prgm_id) => glvar.set_shader_prgm_id(shader_prgm_id),
+        Err(err) => {
+            eprintln!("Error while compiling shaders: {}", err);
+            std::process::exit(1);
+        }
+    }
 }
