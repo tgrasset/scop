@@ -11,6 +11,7 @@ mod obj_parser;
 mod models;
 mod globals;
 mod init_opengl;
+mod compile_shaders;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -26,6 +27,7 @@ fn main() {
             std::process::exit(1);
         }
     };
+    // println!("OBJ data: {}", objdata);
     let mut glvar = match init_opengl::init_window(WIN_WIDTH, WIN_HEIGHT) {
         Ok(vars) => vars,
         Err(err) => {
@@ -33,7 +35,8 @@ fn main() {
             std::process::exit(1);
         }
     };
-    match init_opengl::compile_shaders() {
+    unsafe {init_opengl::send_data_to_opengl(&objdata);}
+    match compile_shaders::compile_shaders() {
         Ok(shader_prgm_id) => glvar.set_shader_prgm_id(shader_prgm_id),
         Err(err) => {
             eprintln!("Error while compiling shaders: {}", err);

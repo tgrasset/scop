@@ -1,6 +1,9 @@
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Error};
+use std::mem::size_of;
 use std::str::SplitWhitespace;
+use gl::types::GLushort;
+
 use crate::models::obj_data::{ObjData, Vertex, Face};
 use crate::models::vec3::Vec3;
 
@@ -10,8 +13,7 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
 
     let mut vertices = Vec::new();
     let mut faces = Vec::new();
-    let mut n_vertices: u32 = 0;
-    let mut n_vertices: u32 = 0;
+    let mut num_vertices: u32 = 0;
 
     for line in reader.lines() {
         let line = line?;
@@ -20,6 +22,7 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
         match parts.next() {
             Some("v") => {
                 add_vertex(&mut vertices, &mut parts)?;
+                num_vertices += 1;
             }
             Some("f") => {
                 add_face(&mut faces, &mut parts)?;
@@ -27,7 +30,13 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
             _ => {}
         }
     }
-    Ok(ObjData { vertices, faces })
+    let indices = get_indices_array_from_faces(faces);
+    let num_indices = indices.len();
+    let vertices_raw = get_vertices_array(&vertices);
+    let vertex_buffer_size = vertices_raw.len() * size_of::<f32>();
+    let indices_buffer_size = indices.len() * size_of::<u16>();
+
+    Ok(ObjData { vertices, num_vertices, vertices_raw, vertex_buffer_size, indices, num_indices, indices_buffer_size })
 }
 
 fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Result<(), Error> {
@@ -59,8 +68,8 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Resul
 }
 
 fn add_face(faces: &mut Vec<Face>, parts: &mut SplitWhitespace) -> Result<(), Error> {
-    let indices: Result<Vec<usize>, _> = parts
-        .map(|s| s.parse::<usize>())
+    let indices: Result<Vec<GLushort>, _> = parts
+        .map(|s| s.parse::<GLushort>())
         .collect();
     let indices = match indices {
         Ok(indices) => indices,
@@ -72,4 +81,36 @@ fn add_face(faces: &mut Vec<Face>, parts: &mut SplitWhitespace) -> Result<(), Er
     faces.push(Face { indices });
 
     Ok(())
+}
+
+fn get_indices_array_from_faces (faces: Vec<Face>) -> Vec<GLushort> {
+    let mut res = Vec::new();
+    for face in faces {
+        for index in face.indices {
+            res.push(index - 1); // indices start from 1 in obj file, they need to start from 0 in openGL buffer
+        }
+    }
+    res
+}
+
+fn get_vertices_array(vertices: &Vec<Vertex>) -> Vec<f32> {
+    let mut vertices_raw = Vec::with_capacity(vertices.len() * 6);
+
+    for vertex in vertices {
+        vertices_raw.push(vertex.position.x);
+        vertices_raw.push(vertex.position.y);
+        vertices_raw.push(vertex.position.z);
+        
+        if let Some(rgb) = &vertex.rgb {
+            vertices_raw.push(rgb.x);
+            vertices_raw.push(rgb.y);
+            vertices_raw.push(rgb.z);
+        } else { 
+            vertices_raw.push(0.0); // default to black
+            vertices_raw.push(0.0);
+            vertices_raw.push(0.0);
+        }
+    }
+
+    vertices_raw
 }

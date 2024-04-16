@@ -1,8 +1,14 @@
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
-    x: f32,
-    y: f32,
-    z: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+impl std::fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+    }
 }
 
 impl Vec3 {
