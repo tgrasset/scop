@@ -10,6 +10,8 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
 
     let mut vertices = Vec::new();
     let mut faces = Vec::new();
+    let mut n_vertices: u32 = 0;
+    let mut n_vertices: u32 = 0;
 
     for line in reader.lines() {
         let line = line?;

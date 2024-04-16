@@ -33,32 +33,13 @@ pub fn init_window(width: u32, height: u32) -> Result<GlVar, Error> {
     Ok(GlVar {glfw: glfw, window: window, events: events, shader_prgm_id: 0})
 }
 
-const VERTEX_SHADER_SOURCE: &str = r#"
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aColor;
-    out vec3 our_color;
-    void main() {
-        gl_Position = vec4(aPos, 1.0);
-        our_color = aColor;
-    }
-"#;
-
-const FRAGMENT_SHADER_SOURCE: &str = r#"
-    #version 330 core
-    out vec4 FragColor;
-    in vec3 our_color;
-    void main() {
-       FragColor = vec4(our_color, 1.0);
-    }
-"#;
 
 pub fn compile_shaders() -> Result<GLuint, Error> {
     println!("Compiling shaders...");
     let mut shader_program_id: GLuint = 0;
     unsafe {
         let vertex_shader_id = gl::CreateShader(gl::VERTEX_SHADER);
-        let mut c_str_source = CString::new(VERTEX_SHADER_SOURCE.as_bytes())?;
+        let mut c_str_source = read_shader_code("./src/shader_code/vertex_shader.glsl")?;
         gl::ShaderSource(
             vertex_shader_id,
             1,
@@ -71,7 +52,7 @@ pub fn compile_shaders() -> Result<GLuint, Error> {
         };
 
         let fragment_shader_id = gl::CreateShader(gl::FRAGMENT_SHADER);
-        c_str_source = CString::new(FRAGMENT_SHADER_SOURCE.as_bytes())?;
+        c_str_source = read_shader_code("./src/shader_code/fragment_shader.glsl")?;
         gl::ShaderSource(
             fragment_shader_id,
             1,
@@ -134,4 +115,10 @@ unsafe fn check_shader_program_link(id: GLuint) -> Result<(), String> {
         return Err(error.to_string_lossy().into_owned());
     }
     Ok(())
+}
+
+fn read_shader_code(file_path: &str) -> Result<CString, Error> {
+    let content = std::fs::read_to_string(file_path)?;
+    let c_str = CString::new(content)?;
+    Ok(c_str)
 }
