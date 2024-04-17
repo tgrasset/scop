@@ -33,7 +33,7 @@ pub fn init_window(width: u32, height: u32) -> Result<GlVar, Error> {
     Ok(GlVar {glfw: glfw, window: window, events: events, shader_prgm_id: 0})
 }
 
-pub unsafe fn send_data_to_opengl(obj_data: &ObjData) -> GLuint {
+pub unsafe fn send_data_to_opengl(obj_data: &ObjData, texture_data: &Vec<u8>) -> GLuint {
 
     let (mut VBO, mut VAO) = (0, 0);
     gl::GenVertexArrays(1, &mut VAO);
