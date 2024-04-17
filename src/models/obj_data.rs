@@ -1,4 +1,4 @@
-use gl::types::GLushort;
+use gl::types::{GLuint, GLushort};
 
 use crate::models::vec3::Vec3;
 
@@ -25,11 +25,15 @@ impl std::fmt::Display for ObjData {
 pub struct Vertex {
     pub position: Vec3,
     pub rgb: Option<Vec3>,
+    pub text_x: f32,
+    pub text_y: f32,
 }
 
 impl std::fmt::Display for Vertex {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Position: {}", self.position)?;
+        write!(f, "textx: {}", self.text_x)?;
+        write!(f, "texty: {}", self.text_y)?;
         if let Some(rgb) = &self.rgb {
             write!(f, ", RGB: {}", rgb)?;
         }

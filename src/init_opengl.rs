@@ -30,41 +30,56 @@ pub fn init_window(width: u32, height: u32) -> Result<GlVar, Error> {
     // OpenGL functions' addresses loaded at runtime so rust can use them
     gl::load_with(|symbol| window.get_proc_address(symbol) as *const _);
     
-    Ok(GlVar {glfw: glfw, window: window, events: events, shader_prgm_id: 0})
+    Ok(GlVar {glfw: glfw, window: window, events: events, shader_prgm_id: 0, texture_id: 0})
 }
 
-pub unsafe fn send_data_to_opengl(obj_data: &ObjData, texture_data: &Vec<u8>) -> GLuint {
+pub unsafe fn send_data_to_opengl(obj_data: &ObjData) -> GLuint {
 
-    let (mut VBO, mut VAO) = (0, 0);
+    let (mut VBO, mut VAO, mut EBO) = (0, 0, 0);
     gl::GenVertexArrays(1, &mut VAO);
     gl::GenBuffers(1, &mut VBO);
+    gl::GenBuffers(1, &mut EBO);
+
     gl::BindVertexArray(VAO);
+
     gl::BindBuffer(gl::ARRAY_BUFFER, VBO);
     gl::BufferData(gl::ARRAY_BUFFER,
                     (obj_data.vertices_raw.len() * size_of::<GLfloat>()) as GLsizeiptr,
                     obj_data.vertices_raw.as_ptr() as *const GLvoid,
                     gl::STATIC_DRAW);
+
+    gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, EBO);
+    gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
+                    obj_data.indices_buffer_size as GLsizeiptr,
+                    obj_data.indices.as_ptr() as *const c_void,
+                    gl::STATIC_DRAW);
+    let stride: i32 = 8 * size_of::<GLfloat>() as GLsizei;
+    //position attribute
     gl::VertexAttribPointer(
         0,
         3, 
         gl::FLOAT,
         gl::FALSE,
-        6 * size_of::<GLfloat>() as GLsizei,
+        stride,
         std::ptr::null());
     gl::EnableVertexAttribArray(0);
+    //color attribute
     gl::VertexAttribPointer(
         1,
         3,
         gl::FLOAT,
         gl::FALSE,
-        6 * size_of::<GLfloat>() as GLsizei,
+        stride,
         (3 * size_of::<GLfloat>()) as *const c_void);
-    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
     gl::EnableVertexAttribArray(1);
-    gl::BufferData(
-        gl::ELEMENT_ARRAY_BUFFER,
-        obj_data.indices_buffer_size as GLsizeiptr,
-        obj_data.indices.as_ptr() as *const c_void,
-        gl::STATIC_DRAW);
+    //texture coord attribute
+    gl::VertexAttribPointer(
+        2,
+        2, 
+        gl::FLOAT,
+        gl::FALSE,
+        stride,
+        (6 * size_of::<GLfloat>()) as *const c_void);
+    gl::EnableVertexAttribArray(2);
     VAO
 }

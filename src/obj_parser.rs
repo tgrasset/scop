@@ -62,7 +62,25 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Resul
     };
     
     let position = Vec3::new(xfloat, yfloat, zfloat);
-    vertices.push(Vertex {position, rgb: None});
+    let mut text_x: f32 = 0.0;
+    let mut text_y: f32 = 0.0;
+    if position.x == 0.5 && position.y == 0.5 {
+        text_x = 1.0;
+        text_y = 1.0;
+    }
+    else if position.x == 0.5 && position.y == -0.5 {
+        text_x = 1.0;
+        text_y = 0.0;
+    }
+    else if position.x == -0.5 && position.y == -0.5 {
+        text_x = 0.0;
+        text_y = 0.0;
+    }
+    else {
+        text_x = 0.0;
+        text_y = 1.0;
+    }
+    vertices.push(Vertex {position, rgb: None, text_x, text_y});
 
     Ok(())
 }
@@ -87,14 +105,18 @@ fn get_indices_array_from_faces (faces: Vec<Face>) -> Vec<GLushort> {
     let mut res = Vec::new();
     for face in faces {
         for index in face.indices {
-            res.push(index - 1); // indices start from 1 in obj file, they need to start from 0 in openGL buffer
+            if index == 0 {
+                res.push(index);
+            } else {
+                res.push(index - 1); // indices start from 1 in obj file, they need to start from 0 in openGL buffer
+            }
         }
     }
     res
 }
 
 fn get_vertices_array(vertices: &Vec<Vertex>) -> Vec<f32> {
-    let mut vertices_raw = Vec::with_capacity(vertices.len() * 6);
+    let mut vertices_raw = Vec::with_capacity(vertices.len() * 8);
 
     for vertex in vertices {
         vertices_raw.push(vertex.position.x);
@@ -110,6 +132,8 @@ fn get_vertices_array(vertices: &Vec<Vertex>) -> Vec<f32> {
             vertices_raw.push(0.0);
             vertices_raw.push(0.0);
         }
+        vertices_raw.push(vertex.text_x);
+        vertices_raw.push(vertex.text_y);
     }
 
     vertices_raw

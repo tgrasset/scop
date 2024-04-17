@@ -29,13 +29,6 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let texture_data = match texture_loader::load_texture(&args[2]) {
-        Ok(data) => data,
-        Err(err) => {
-            eprintln!("Error while loading texture: {}", err);
-            std::process::exit(1);
-        }
-    };
     println!("OBJ data: {}", objdata);
     let mut glvar = match init_opengl::init_window(WIN_WIDTH, WIN_HEIGHT) {
         Ok(vars) => vars,
@@ -44,7 +37,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let vao = unsafe {init_opengl::send_data_to_opengl(&objdata, &texture_data)};
+    let vao = unsafe {init_opengl::send_data_to_opengl(&objdata)};
     match compile_shaders::compile_shaders() {
         Ok(shader_prgm_id) => glvar.set_shader_prgm_id(shader_prgm_id),
         Err(err) => {
@@ -52,20 +45,24 @@ fn main() {
             std::process::exit(1);
         }
     }
+    match texture_loader::load_texture(&args[2]) {
+        Ok(texture_id) => glvar.set_texture_id(texture_id),
+        Err(err) => {
+            eprintln!("Error while loading texture: {}", err);
+            std::process::exit(1);
+        }
+    };
     println!("Rendering...");
     while !glvar.window.should_close() {
         process_events(&mut glvar.window, &glvar.events);
         unsafe {
             gl::ClearColor(0.0, 0.1, 0.2, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+            gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
             gl::UseProgram(glvar.shader_prgm_id);
             gl::BindVertexArray(vao);
-
-            let greenValue = 0.5;
-            let ourColor = std::ffi::CString::new("our_color").unwrap();
-            let vertexColorLocation = gl::GetUniformLocation(glvar.shader_prgm_id, ourColor.as_ptr());
-            gl::Uniform4f(vertexColorLocation, 0.0, greenValue, 0.0, 1.0);
-            gl::DrawArrays(gl::TRIANGLES, 0, 50);
+            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
+            // gl::DrawArrays(gl::TRIANGLES, 0, 6);
         }
         glvar.window.swap_buffers();
         glvar.glfw.poll_events();

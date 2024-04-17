@@ -7,10 +7,14 @@ pub struct GlVar {
     pub window: Window,
     pub events: Receiver<(f64, WindowEvent)>,
     pub shader_prgm_id: GLuint,
+    pub texture_id: GLuint,
 }
 
 impl GlVar {
     pub fn set_shader_prgm_id(&mut self, id: GLuint) {
        self.shader_prgm_id = id;
     }
+    pub fn set_texture_id(&mut self, id: GLuint) {
+        self.texture_id = id;
+     }
 }

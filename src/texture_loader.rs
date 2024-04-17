@@ -1,10 +1,36 @@
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 
-pub fn load_texture(path: &str) -> Result<Vec<u8>, String> {
-    let mut file = File::open(path).map_err(|e| format!("Error opening file: {}", e))?;
-    let data = read_bmp(&mut file)?;
-    Ok(data)
+extern crate image; //INTERDIT
+use image::GenericImage;
+use std::path::Path;
+
+pub fn load_texture(path: &str) -> Result<u32, String> {
+    let img = image::open(&Path::new(path)).expect("Failed to load texture");
+    let rgba_img = img.to_rgba8();
+    let data = rgba_img.into_raw();
+    // let mut file = File::open(path).map_err(|e| format!("Error opening file: {}", e))?;
+    // let data = read_bmp(&mut file)?;
+    let mut texture_id = 0;
+    unsafe {
+        gl::GenTextures(1, &mut texture_id);
+        gl::BindTexture(gl::TEXTURE_2D, texture_id);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
+        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+        gl::TexImage2D(gl::TEXTURE_2D,
+            0,
+            gl::RGB as i32,
+            img.width() as i32,
+            img.height() as i32,
+            0,
+            gl::RGB,
+            gl::UNSIGNED_BYTE,
+            &data[0] as *const u8 as *const std::ffi::c_void);
+gl::GenerateMipmap(gl::TEXTURE_2D);
+    }
+    Ok(texture_id)
 }
 
 fn read_bmp(file: &mut File) -> Result<Vec<u8>, String> {
