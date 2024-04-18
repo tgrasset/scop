@@ -1,6 +1,6 @@
 use gl::types::{ GLushort};
 
-use crate::models::my_math::Vec3;
+use crate::models::vec3::Vec3;
 
 pub struct ObjData {
     pub vertices: Vec<Vertex>,
