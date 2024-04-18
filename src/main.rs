@@ -37,7 +37,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let vao = unsafe {init_opengl::send_data_to_opengl(&objdata)};
+    let (vao, vbo, ebo) = unsafe {init_opengl::send_data_to_opengl(&objdata)};
     match compile_shaders::compile_shaders() {
         Ok(shader_prgm_id) => glvar.set_shader_prgm_id(shader_prgm_id),
         Err(err) => {
@@ -61,11 +61,15 @@ fn main() {
             gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
             gl::UseProgram(glvar.shader_prgm_id);
             gl::BindVertexArray(vao);
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
-            // gl::DrawArrays(gl::TRIANGLES, 0, 6);
+            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_SHORT, std::ptr::null());
         }
         glvar.window.swap_buffers();
         glvar.glfw.poll_events();
+    }
+    unsafe {
+        gl::DeleteVertexArrays(1, &vao);
+        gl::DeleteBuffers(1, &vbo);
+        gl::DeleteBuffers(1, &ebo);
     }
 }
 
