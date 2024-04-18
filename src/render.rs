@@ -1,8 +1,9 @@
+use crate::models::obj_data::{self, ObjData};
 use crate::models::{gl_var::GlVar};
 use crate::glfw::{Context, Key, Action};
 use std::sync::mpsc::Receiver;
 
-pub fn render_loop(glvar: &mut GlVar, vao: &u32) {
+pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &ObjData) {
     println!("Rendering...");
     while !glvar.window.should_close() {
         process_events(&mut glvar.window, &glvar.events);
@@ -12,7 +13,7 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32) {
             gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
             gl::UseProgram(glvar.shader_prgm_id);
             gl::BindVertexArray(*vao);
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_SHORT, std::ptr::null());
+            gl::DrawElements(gl::TRIANGLES, obj_data.num_indices as i32, gl::UNSIGNED_SHORT, std::ptr::null());
         }
         glvar.window.swap_buffers();
         glvar.glfw.poll_events();

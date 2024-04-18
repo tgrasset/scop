@@ -30,7 +30,7 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
             _ => {}
         }
     }
-    let indices = get_indices_array_from_faces(faces);
+    let indices = get_indices_array_from_faces(&faces);
     let num_indices = indices.len();
     let vertices_raw = get_vertices_array(&vertices);
     let vertex_buffer_size = vertices_raw.len() * size_of::<f32>();
@@ -86,30 +86,61 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Resul
 }
 
 fn add_face(faces: &mut Vec<Face>, parts: &mut SplitWhitespace) -> Result<(), Error> {
-    let indices: Result<Vec<GLushort>, _> = parts
-        .map(|s| s.parse::<GLushort>())
-        .collect();
-    let indices = match indices {
-        Ok(indices) => indices,
-        Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e)),
-    };
-    if indices.len() < 3 {
-        return Err(Error::new(io::ErrorKind::InvalidData, "A face must have at least 3 indices"));
-    }
-    faces.push(Face { indices });
+    let mut indices: Vec<GLushort> = Vec::new();
 
+    for (i, s) in parts.enumerate() {
+        let index = match s.parse::<GLushort>() {
+            Ok(value) => {
+                if value == 0 {
+                    return Err(Error::new(io::ErrorKind::InvalidData, "Invalid vertex index (0)"));
+                }
+                value
+            },
+            Err(e) => return Err(Error::new(io::ErrorKind::InvalidData, e)),
+        };
+        indices.push(index);
+    }
+    if indices.len() < 3 {
+        return Err(Error::new(io::ErrorKind::InvalidData, "A face must have at least 3 indices"))
+    }
+    else if indices.len() == 3 {
+        faces.push(Face {indices});
+    }
+    else {
+        for i in 2..indices.len() {
+            let face = Face {
+                indices: vec![indices[0], indices[i -1], indices[i]],
+            };
+            faces.push(face);
+        }
+    }
     Ok(())
+
+
+
+
+
+
+    // let indices: Result<Vec<GLushort>, _> = parts
+    //     .map(|s| s.parse::<GLushort>())
+    //     .collect();
+    // let indices = match indices {
+    //     Ok(indices) => indices,
+    //     Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e)),
+    // };
+    // if indices.len() < 3 {
+    //     return Err(Error::new(io::ErrorKind::InvalidData, "A face must have at least 3 indices"));
+    // }
+    // faces.push(Face { indices });
+
+    // Ok(())
 }
 
-fn get_indices_array_from_faces (faces: Vec<Face>) -> Vec<GLushort> {
+fn get_indices_array_from_faces (faces: &Vec<Face>) -> Vec<GLushort> {
     let mut res = Vec::new();
     for face in faces {
-        for index in face.indices {
-            if index == 0 {
-                res.push(index);
-            } else {
-                res.push(index - 1); // indices start from 1 in obj file, they need to start from 0 in openGL buffer
-            }
+        for &index in &face.indices {
+            res.push(index - 1); // indices start from 1 in obj file, they need to start from 0 in openGL buffer
         }
     }
     res

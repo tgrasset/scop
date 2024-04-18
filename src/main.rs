@@ -50,7 +50,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    render::render_loop(&mut glvar, &vao);
+    render::render_loop(&mut glvar, &vao, &objdata);
     unsafe {
         gl::DeleteVertexArrays(1, &vao);
         gl::DeleteBuffers(1, &vbo);
