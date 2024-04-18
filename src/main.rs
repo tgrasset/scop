@@ -1,12 +1,9 @@
 use std::env;
-use std::sync::mpsc::Receiver;
 
 use globals::{WIN_HEIGHT, WIN_WIDTH};
 
 extern crate gl;
 extern crate glfw;
-
-use self::glfw::{Context, Key, Action};
 
 mod obj_parser;
 mod models;

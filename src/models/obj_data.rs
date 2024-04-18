@@ -1,4 +1,4 @@
-use gl::types::{GLuint, GLushort};
+use gl::types::{ GLushort};
 
 use crate::models::my_math::Vec3;
 

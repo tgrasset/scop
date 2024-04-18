@@ -3,7 +3,7 @@ use glfw::Context;
 
 use std::{io::{Error, ErrorKind}, mem::size_of, os::raw::c_void};
 
-use crate::models::{gl_var::GlVar, obj_data::{self, ObjData}};
+use crate::models::{gl_var::GlVar, obj_data::ObjData};
 
 pub fn init_window(width: u32, height: u32) -> Result<GlVar, Error> {
 
@@ -35,20 +35,20 @@ pub fn init_window(width: u32, height: u32) -> Result<GlVar, Error> {
 
 pub unsafe fn send_data_to_opengl(obj_data: &ObjData) -> (GLuint, GLuint, GLuint) {
 
-    let (mut VBO, mut VAO, mut EBO) = (0, 0, 0);
-    gl::GenVertexArrays(1, &mut VAO);
-    gl::GenBuffers(1, &mut VBO);
-    gl::GenBuffers(1, &mut EBO);
+    let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
+    gl::GenVertexArrays(1, &mut vao);
+    gl::GenBuffers(1, &mut vbo);
+    gl::GenBuffers(1, &mut ebo);
 
-    gl::BindVertexArray(VAO);
+    gl::BindVertexArray(vao);
 
-    gl::BindBuffer(gl::ARRAY_BUFFER, VBO);
+    gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
     gl::BufferData(gl::ARRAY_BUFFER,
                     (obj_data.vertices_raw.len() * size_of::<GLfloat>()) as GLsizeiptr,
                     obj_data.vertices_raw.as_ptr() as *const GLvoid,
                     gl::STATIC_DRAW);
 
-    gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, EBO);
+    gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
     gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
                     obj_data.indices_buffer_size as GLsizeiptr,
                     obj_data.indices.as_ptr() as *const c_void,
@@ -81,5 +81,5 @@ pub unsafe fn send_data_to_opengl(obj_data: &ObjData) -> (GLuint, GLuint, GLuint
         stride,
         (6 * size_of::<GLfloat>()) as *const c_void);
     gl::EnableVertexAttribArray(2);
-    (VAO, VBO, EBO)
+    (vao, vbo, ebo)
 }

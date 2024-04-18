@@ -5,7 +5,6 @@ use std::{ffi::CString, io::{Error, ErrorKind}, ptr};
 
 pub fn compile_shaders() -> Result<GLuint, Error> {
     println!("Compiling shaders...");
-    let mut shader_program_id: GLuint = 0;
     unsafe {
         let vertex_shader_id = gl::CreateShader(gl::VERTEX_SHADER);
         let mut c_str_source = read_shader_code("./src/shader_code/vertex_shader.glsl")?;
@@ -34,7 +33,7 @@ pub fn compile_shaders() -> Result<GLuint, Error> {
         };
 
         println!("Linking shaders...");
-        shader_program_id = gl::CreateProgram();
+        let shader_program_id = gl::CreateProgram();
         gl::AttachShader(shader_program_id, vertex_shader_id);
         gl::AttachShader(shader_program_id, fragment_shader_id);
         gl::LinkProgram(shader_program_id);
@@ -44,8 +43,8 @@ pub fn compile_shaders() -> Result<GLuint, Error> {
             Ok(()) => {},
             Err(e) => return Err(Error::new(ErrorKind::Other, e)),
         };
+        Ok(shader_program_id)
     }
-    Ok(shader_program_id)
 }
 
 unsafe fn check_shader_compilation(shader_id: GLuint) -> Result<(), String> {
