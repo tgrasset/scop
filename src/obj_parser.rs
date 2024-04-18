@@ -35,8 +35,9 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
     let vertices_raw = get_vertices_array(&vertices);
     let vertex_buffer_size = vertices_raw.len() * size_of::<f32>();
     let indices_buffer_size = indices.len() * size_of::<u16>();
+    let (center_x, center_y, center_z, longest_distance) = get_center_and_size(&vertices);
 
-    Ok(ObjData { vertices, num_vertices, vertices_raw, vertex_buffer_size, indices, num_indices, indices_buffer_size })
+    Ok(ObjData { vertices, num_vertices, vertices_raw, vertex_buffer_size, indices, num_indices, indices_buffer_size, center_x, center_y, center_z, longest_distance })
 }
 
 fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Result<(), Error> {
@@ -115,28 +116,9 @@ fn add_face(faces: &mut Vec<Face>, parts: &mut SplitWhitespace) -> Result<(), Er
         }
     }
     Ok(())
-
-
-
-
-
-
-    // let indices: Result<Vec<GLushort>, _> = parts
-    //     .map(|s| s.parse::<GLushort>())
-    //     .collect();
-    // let indices = match indices {
-    //     Ok(indices) => indices,
-    //     Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e)),
-    // };
-    // if indices.len() < 3 {
-    //     return Err(Error::new(io::ErrorKind::InvalidData, "A face must have at least 3 indices"));
-    // }
-    // faces.push(Face { indices });
-
-    // Ok(())
 }
 
-fn get_indices_array_from_faces (faces: &Vec<Face>) -> Vec<GLushort> {
+fn get_indices_array_from_faces (faces: &Vec<Face>) -> Vec<GLushort> {  // OULA ATTENTION BIZARRE
     let mut res = Vec::new();
     for face in faces {
         for &index in &face.indices {
@@ -168,4 +150,35 @@ fn get_vertices_array(vertices: &Vec<Vertex>) -> Vec<f32> {
     }
 
     vertices_raw
+}
+
+fn get_center_and_size(vertices: &Vec<Vertex>) -> (f32, f32, f32, f32) {
+    let mut min_x = std::f32::MAX;
+    let mut max_x = std::f32::MIN;
+    let mut min_y = std::f32::MAX;
+    let mut max_y = std::f32::MIN;
+    let mut min_z = std::f32::MAX;
+    let mut max_z = std::f32::MIN;
+    let mut longest = std::f32::MIN;
+
+    for vertex in vertices {
+        if vertex.position.x < min_x { min_x = vertex.position.x; }
+        if vertex.position.x > max_x { max_x = vertex.position.x; }
+        if vertex.position.y < min_y { min_y = vertex.position.y; }
+        if vertex.position.y > max_y { max_y = vertex.position.y; }
+        if vertex.position.z < min_z { min_z = vertex.position.z; }
+        if vertex.position.z > max_z { max_z = vertex.position.z; }
+    }
+    let center_x = (min_x + max_x) / 2.0;
+    let center_y = (min_y + max_y) / 2.0;
+    let center_z = (min_z + max_z) / 2.0;
+    let obj_max_width = max_x - min_x;
+    let obj_max_height = max_y - min_y;
+    let obj_max_depth = max_z - min_z;
+
+    if obj_max_width > longest {longest = obj_max_width;}
+    if obj_max_height > longest {longest = obj_max_height;}
+    if obj_max_depth > longest {longest = obj_max_depth;}
+
+    (center_x, center_y, center_z, longest)
 }

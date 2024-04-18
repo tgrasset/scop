@@ -10,6 +10,10 @@ pub struct ObjData {
     pub indices: Vec<GLushort>,
     pub num_indices: usize,
     pub indices_buffer_size: usize,
+    pub center_x: f32,
+    pub center_y: f32,
+    pub center_z: f32,
+    pub longest_distance: f32,
 }
 
 impl std::fmt::Display for ObjData {

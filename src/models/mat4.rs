@@ -41,7 +41,7 @@ impl Mat4 {
     }
 
     // Apply rotation around the X axis
-    pub fn rotate_x(mut self, angle: f32) -> Self {
+    pub fn rotate_x(&mut self, angle: f32)  {
         let (sin_a, cos_a) = angle.sin_cos();
         let row1 = self.data[1];
         let row2 = self.data[2];
@@ -49,23 +49,21 @@ impl Mat4 {
         self.data[1][2] = row1[2] * cos_a - row2[2] * sin_a;
         self.data[2][1] = row1[1] * sin_a + row2[1] * cos_a;
         self.data[2][2] = row1[2] * sin_a + row2[2] * cos_a;
-        self
     }
 
     // Apply rotation around the Y axis
-    pub fn rotate_y(mut self, angle: f32) -> Self {
+    pub fn rotate_y(&mut self, angle: f32)  {
         let (sin_a, cos_a) = angle.sin_cos();
         let row0 = self.data[0];
         let row2 = self.data[2];
-        self.data[0][0] = row0[0] * cos_a - row2[0] * sin_a;
-        self.data[0][2] = row0[0] * sin_a + row2[0] * cos_a;
-        self.data[2][0] = row0[2] * cos_a + row2[2] * sin_a;
-        self.data[2][2] = -row0[2] * sin_a + row2[2] * cos_a;
-        self
+        self.data[0][0] = row0[0] * cos_a + row2[0] * sin_a;
+        self.data[0][2] = -row0[0] * sin_a + row2[0] * cos_a;
+        self.data[2][0] = row0[2] * cos_a - row2[2] * sin_a;
+        self.data[2][2] = row0[2] * sin_a + row2[2] * cos_a;
     }
 
     // Apply rotation around the Z axis
-    pub fn rotate_z(mut self, angle: f32) -> Self {
+    pub fn rotate_z(&mut self, angle: f32)  {
         let (sin_a, cos_a) = angle.sin_cos();
         let row0 = self.data[0];
         let row1 = self.data[1];
@@ -73,7 +71,6 @@ impl Mat4 {
         self.data[0][1] = row0[1] * cos_a - row1[1] * sin_a;
         self.data[1][0] = row0[0] * sin_a + row1[0] * cos_a;
         self.data[1][1] = row0[1] * sin_a + row1[1] * cos_a;
-        self
     }
 
     // Apply scaling to the matrix
