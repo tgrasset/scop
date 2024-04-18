@@ -14,6 +14,7 @@ mod globals;
 mod init_opengl;
 mod compile_shaders;
 mod texture_loader;
+mod render;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -52,37 +53,10 @@ fn main() {
             std::process::exit(1);
         }
     };
-    println!("Rendering...");
-    while !glvar.window.should_close() {
-        process_events(&mut glvar.window, &glvar.events);
-        unsafe {
-            gl::ClearColor(0.0, 0.1, 0.2, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-            gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
-            gl::UseProgram(glvar.shader_prgm_id);
-            gl::BindVertexArray(vao);
-            gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_SHORT, std::ptr::null());
-        }
-        glvar.window.swap_buffers();
-        glvar.glfw.poll_events();
-    }
+    render::render_loop(&mut glvar, &vao);
     unsafe {
         gl::DeleteVertexArrays(1, &vao);
         gl::DeleteBuffers(1, &vbo);
         gl::DeleteBuffers(1, &ebo);
-    }
-}
-
-fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>) {
-    for (_, event) in glfw::flush_messages(events) {
-        match event {
-            // match viewport to window size if changed
-            glfw::WindowEvent::FramebufferSize(width, height) => {
-                unsafe { gl::Viewport(0, 0, width, height) }
-            }
-            // escape to close window
-            glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
-            _ => {}
-        }
     }
 }

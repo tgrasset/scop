@@ -5,7 +5,7 @@ use std::str::SplitWhitespace;
 use gl::types::GLushort;
 
 use crate::models::obj_data::{ObjData, Vertex, Face};
-use crate::models::vec3::Vec3;
+use crate::models::my_math::Vec3;
 
 pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
     let file = File::open(file_path)?;

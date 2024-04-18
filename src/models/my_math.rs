@@ -82,3 +82,7 @@ impl Vec3 {
         }
     }
 }
+
+pub struct Mat4 {
+    pub data: [[f32; 4]; 4],
+}
