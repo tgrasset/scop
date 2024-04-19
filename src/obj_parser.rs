@@ -58,6 +58,7 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
         scale_x: 1.0,
         scale_y: 1.0,
         scale_z: 1.0,
+        display_texture: false,
     })
 }
 
@@ -84,24 +85,8 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Resul
     };
     
     let position = Vec3::new(xfloat, yfloat, zfloat);
-    let mut text_x: f32 = 0.0;
-    let mut text_y: f32 = 0.0;
-    if position.x == 0.5 && position.y == 0.5 {
-        text_x = 1.0;
-        text_y = 1.0;
-    }
-    else if position.x == 0.5 && position.y == -0.5 {
-        text_x = 1.0;
-        text_y = 0.0;
-    }
-    else if position.x == -0.5 && position.y == -0.5 {
-        text_x = 0.0;
-        text_y = 0.0;
-    }
-    else {
-        text_x = 0.0;
-        text_y = 1.0;
-    }
+    let mut text_x: f32 = xfloat;
+    let mut text_y: f32 = yfloat;
     vertices.push(Vertex {position, rgb: None, text_x, text_y});
 
     Ok(())

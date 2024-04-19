@@ -44,9 +44,11 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             gl::ClearColor(0.6, 0.6, 0.6 , 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             
-            gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            if obj_data.display_texture {
+                gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
+            } else {
+                gl::BindTexture(gl::TEXTURE_2D, 0);
+            }
             gl::UseProgram(glvar.shader_prgm_id);
 
             let model_location = gl::GetUniformLocation(glvar.shader_prgm_id, "model\0".as_ptr() as *const i8);
@@ -72,6 +74,12 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
                 unsafe { gl::Viewport(0, 0, width, height) }
             }
             glfw::WindowEvent::Key(key, _, Action::Press, _) => {
+                if key == Key::T {
+                    obj_data.display_texture = !obj_data.display_texture;
+                }
+                else if key == Key::Escape {
+                    window.set_should_close(true);
+                }
                 keys.insert(key);
             },
             glfw::WindowEvent::Key(key, _, Action::Release, _) => {
@@ -133,9 +141,6 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
     }
     if keys.contains(&Key::Kp3) {
         obj_data.scale_z -= TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Escape) {
-        window.set_should_close(true);
     }
 }
 

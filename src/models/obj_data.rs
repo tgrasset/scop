@@ -23,6 +23,7 @@ pub struct ObjData {
     pub scale_x: f32,
     pub scale_y: f32,
     pub scale_z: f32,
+    pub display_texture: bool,
 }
 
 impl std::fmt::Display for ObjData {
