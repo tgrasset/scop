@@ -36,6 +36,7 @@ pub fn init_window(width: u32, height: u32) -> Result<GlVar, Error> {
 pub unsafe fn send_data_to_opengl(obj_data: &ObjData) -> (GLuint, GLuint, GLuint) {
 
     let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
+    gl::Enable(gl::DEPTH_TEST);
     gl::GenVertexArrays(1, &mut vao);
     gl::GenBuffers(1, &mut vbo);
     gl::GenBuffers(1, &mut ebo);

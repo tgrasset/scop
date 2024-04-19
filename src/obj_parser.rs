@@ -37,7 +37,22 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
     let indices_buffer_size = indices.len() * size_of::<u16>();
     let (center_x, center_y, center_z, longest_distance) = get_center_and_size(&vertices);
 
-    Ok(ObjData { vertices, num_vertices, vertices_raw, vertex_buffer_size, indices, num_indices, indices_buffer_size, center_x, center_y, center_z, longest_distance })
+    Ok(ObjData {
+        vertices,
+        num_vertices,
+        vertices_raw,
+        vertex_buffer_size,
+        indices,
+        num_indices,
+        indices_buffer_size,
+        center_x,
+        center_y,
+        center_z,
+        longest_distance,
+        orientation_x: 0.0,
+        orientation_y: 0.0,
+        orientation_z: 0.0
+    })
 }
 
 fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Result<(), Error> {

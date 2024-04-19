@@ -20,7 +20,7 @@ fn main() {
         eprintln!("Error: Wrong number of arguments\nUsage: ./scop path/to/object/file path/to/bmp/texture");
         std::process::exit(1);
     }
-    let objdata = match obj_parser::parse_obj_file(&args[1]) {
+    let mut objdata = match obj_parser::parse_obj_file(&args[1]) {
         Ok(data) => data,
         Err(err) => {
             eprintln!("Error while parsing obj file: {}", err);
@@ -50,7 +50,7 @@ fn main() {
             std::process::exit(1);
         }
     };
-    render::render_loop(&mut glvar, &vao, &objdata);
+    render::render_loop(&mut glvar, &vao, &mut objdata);
     unsafe {
         gl::DeleteVertexArrays(1, &vao);
         gl::DeleteBuffers(1, &vbo);

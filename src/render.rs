@@ -9,7 +9,7 @@ use crate::models::mat4::Mat4;
 use crate::models::vec3::Vec3;
 use crate::globals::*;
 
-pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &ObjData) {
+pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
     println!("Rendering...");
 
     let mut keys:HashSet<Key> = HashSet::new();
@@ -23,25 +23,30 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &ObjData) {
     let up = Vec3::new(0.0, 1.0, 0.0);
     let view = look_at(eye, target, up);
 
-    let mut model = Mat4::identity();
     let mut projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
-
-    let (mut rotation_x, mut rotation_y, mut rotation_z) = (0.0, 0.0, 0.0);
+    println!("center : {}  {}  {}", obj_data.center_x, obj_data.center_y, obj_data.center_z);
 
     while !glvar.window.should_close() {
 
-        (rotation_x, rotation_y, rotation_z) = process_events(&mut glvar.window, &glvar.events, &mut keys);
-        model.rotate_x(rotation_x);
-        model.rotate_y(rotation_y);
-        model.rotate_z(rotation_z);
+        process_events(&mut glvar.window, &glvar.events, &mut keys, obj_data);
+        let mut model = Mat4::identity();
+        model = model.translate(-obj_data.center_x, -obj_data.center_y, -obj_data.center_z);
+        model = model.rotate_x(obj_data.orientation_x);
+        model = model.rotate_y(obj_data.orientation_y);
+        model = model.rotate_z(obj_data.orientation_z);
+        // println!("Model Matrix:");
+        // for row in model.data.iter() {
+            //     println!("{:?}", row);
+            // }
+        model = model.translate(obj_data.center_x, obj_data.center_y, obj_data.center_z);
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
             aspect_ratio = width as f32 / height as f32;
         }
         projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
-
+            
         unsafe {
-            gl::ClearColor(0.0, 0.1, 0.2, 1.0);
+            gl::ClearColor(0.6, 0.6, 0.6 , 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             
             gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
@@ -62,7 +67,7 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &ObjData) {
     }
 }
 
-fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>, keys: &mut HashSet<Key>) -> (f32, f32, f32) {
+fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>, keys: &mut HashSet<Key>, obj_data: &mut ObjData) {
     for (_, event) in glfw::flush_messages(events) {
         match event {
             // match viewport to window size if changed
@@ -78,32 +83,27 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
             _ => {}
         }
     }
-    let rotation_speed = 0.05;
-    let mut rotation_x = 0.0;
-    let mut rotation_y = 0.0;
-    let mut rotation_z = 0.0;
     if keys.contains(&Key::Up) {
-        rotation_x += rotation_speed;
+        obj_data.orientation_x += ROTATION_SPEED;
     }
     if keys.contains(&Key::Down) {
-        rotation_x -= rotation_speed;
+        obj_data.orientation_x -= ROTATION_SPEED;
     }
     if keys.contains(&Key::Right) {
-        rotation_y += rotation_speed;
+        obj_data.orientation_y += ROTATION_SPEED;
     }
     if keys.contains(&Key::Left) {
-        rotation_y -= rotation_speed;
+        obj_data.orientation_y -= ROTATION_SPEED;
     }
     if keys.contains(&Key::Z) {
-        rotation_z += rotation_speed;
+        obj_data.orientation_z += ROTATION_SPEED;
     }
     if keys.contains(&Key::X) {
-        rotation_z -= rotation_speed;
+        obj_data.orientation_z -= ROTATION_SPEED;
     }
     if keys.contains(&Key::Escape) {
         window.set_should_close(true);
     }
-    (rotation_x, rotation_y, rotation_z)
 }
 
 fn look_at(eye: Vec3, target: Vec3, up: Vec3) -> Mat4 {
