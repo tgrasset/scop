@@ -24,6 +24,7 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
     while !glvar.window.should_close() {
 
         process_events(&mut glvar.window, &glvar.events, &mut keys, obj_data);
+        
 
         let model = Mat4::identity()
             .translate(-obj_data.center_x, -obj_data.center_y, -obj_data.center_z)
@@ -33,8 +34,6 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             .translate(obj_data.center_x, obj_data.center_y, obj_data.center_z)
             .scale(obj_data.scale_x, obj_data.scale_y, obj_data.scale_z)
             .translate(obj_data.position_x, obj_data.position_y, obj_data.position_z);
-        println!("MAtrix");
-        model.print();
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
             aspect_ratio = width as f32 / height as f32;
@@ -55,11 +54,11 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             gl::UseProgram(glvar.shader_prgm_id);
 
             let model_location = gl::GetUniformLocation(glvar.shader_prgm_id, "model\0".as_ptr() as *const i8);
-            gl::UniformMatrix4fv(model_location, 1, gl::FALSE, std::mem::transmute(model.data.as_ptr()));
+            gl::UniformMatrix4fv(model_location, 1, gl::FALSE, model.as_ptr());
             let view_location = gl::GetUniformLocation(glvar.shader_prgm_id, "view\0".as_ptr() as *const i8);
-            gl::UniformMatrix4fv(view_location, 1, gl::FALSE, std::mem::transmute(view.data.as_ptr()));
+            gl::UniformMatrix4fv(view_location, 1, gl::FALSE, view.as_ptr());
             let projection_location = gl::GetUniformLocation(glvar.shader_prgm_id, "projection\0".as_ptr() as *const i8);
-            gl::UniformMatrix4fv(projection_location, 1, gl::FALSE, std::mem::transmute(projection.data.as_ptr()));
+            gl::UniformMatrix4fv(projection_location, 1, gl::FALSE,projection.as_ptr());
 
             gl::BindVertexArray(*vao);
             gl::DrawElements(gl::TRIANGLES, obj_data.num_indices as i32, gl::UNSIGNED_SHORT, std::ptr::null());
@@ -156,17 +155,17 @@ fn look_at(eye_distance: f32) -> Mat4 {
     let up = forward.cross(right);
 
     let mut result = Mat4::identity();
-    result.data[0][0] = right.x;
-    result.data[1][0] = right.y;
-    result.data[2][0] = right.z;
-    result.data[0][1] = up.x;
-    result.data[1][1] = up.y;
-    result.data[2][1] = up.z;
-    result.data[0][2] = -forward.x;
-    result.data[1][2] = -forward.y;
-    result.data[2][2] = -forward.z;
-    result.data[3][0] = -right.dot(eye);
-    result.data[3][1] = -up.dot(eye);
-    result.data[3][2] = forward.dot(eye);
+    result.0[0][0] = right.x;
+    result.0[1][0] = right.y;
+    result.0[2][0] = right.z;
+    result.0[0][1] = up.x;
+    result.0[1][1] = up.y;
+    result.0[2][1] = up.z;
+    result.0[0][2] = -forward.x;
+    result.0[1][2] = -forward.y;
+    result.0[2][2] = -forward.z;
+    result.0[3][0] = -right.dot(eye);
+    result.0[3][1] = -up.dot(eye);
+    result.0[3][2] = forward.dot(eye);
     result
 }
