@@ -7,6 +7,7 @@ use gl::types::GLushort;
 use crate::models::obj_data::{ObjData, Vertex, Face};
 use crate::models::vec3::Vec3;
 
+
 pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
     let file = File::open(file_path)?;
     let reader = BufReader::new(file);
@@ -21,7 +22,7 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
 
         match parts.next() {
             Some("v") => {
-                add_vertex(&mut vertices, &mut parts)?;
+                add_vertex(&mut vertices, &mut parts, num_vertices)?;
                 num_vertices += 1;
             }
             Some("f") => {
@@ -62,7 +63,7 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
     })
 }
 
-fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Result<(), Error> {
+fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace, index: u32) -> Result<(), Error> {
     let x = parts.next().ok_or_else(|| Error::new(io::ErrorKind::InvalidData, "Invalid vertex format"))?;
     let y = parts.next().ok_or_else(|| Error::new(io::ErrorKind::InvalidData, "Invalid vertex format"))?;
     let z = parts.next().ok_or_else(|| Error::new(io::ErrorKind::InvalidData, "Invalid vertex format"))?;
@@ -85,9 +86,10 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace ) -> Resul
     };
     
     let position = Vec3::new(xfloat, yfloat, zfloat);
+    let rgb = generate_random_color(index);
     let mut text_x: f32 = xfloat;
     let mut text_y: f32 = yfloat;
-    vertices.push(Vertex {position, rgb: None, text_x, text_y});
+    vertices.push(Vertex {position, rgb, text_x, text_y});
 
     Ok(())
 }
@@ -141,16 +143,9 @@ fn get_vertices_array(vertices: &Vec<Vertex>) -> Vec<f32> {
         vertices_raw.push(vertex.position.x);
         vertices_raw.push(vertex.position.y);
         vertices_raw.push(vertex.position.z);
-        
-        if let Some(rgb) = &vertex.rgb {
-            vertices_raw.push(rgb.x);
-            vertices_raw.push(rgb.y);
-            vertices_raw.push(rgb.z);
-        } else { 
-            vertices_raw.push(0.0); // default to black
-            vertices_raw.push(0.0);
-            vertices_raw.push(0.0);
-        }
+        vertices_raw.push(vertex.rgb.x);
+        vertices_raw.push(vertex.rgb.y);
+        vertices_raw.push(vertex.rgb.z);
         vertices_raw.push(vertex.text_x);
         vertices_raw.push(vertex.text_y);
     }
@@ -187,4 +182,11 @@ fn get_center_and_size(vertices: &Vec<Vertex>) -> (f32, f32, f32, f32) {
     if obj_max_depth > longest {longest = obj_max_depth;}
 
     (center_x, center_y, center_z, longest)
+}
+
+fn generate_random_color(index: u32) -> Vec3 {
+    let r = ((index * 15451) % 255) as f32 / 255.0;
+    let g = ((index * 16267 + 127) % 255) as f32 / 255.0;  
+    let b = ((index * 16879 + 254) % 255) as f32 / 255.0;  
+    Vec3::new(r, g, b)
 }

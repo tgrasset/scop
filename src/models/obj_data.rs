@@ -5,7 +5,7 @@ use crate::models::vec3::Vec3;
 pub struct ObjData {
     pub vertices: Vec<Vertex>,
     pub num_vertices: u32,
-    pub vertices_raw: Vec<f32>,   //// MIGHT BE USELESS
+    pub vertices_raw: Vec<f32>,
     pub vertex_buffer_size: usize,
     pub indices: Vec<GLushort>,
     pub num_indices: usize,
@@ -38,7 +38,7 @@ impl std::fmt::Display for ObjData {
 
 pub struct Vertex {
     pub position: Vec3,
-    pub rgb: Option<Vec3>,
+    pub rgb: Vec3,
     pub text_x: f32,
     pub text_y: f32,
 }
@@ -48,9 +48,8 @@ impl std::fmt::Display for Vertex {
         write!(f, "Position: {}", self.position)?;
         write!(f, "textx: {}", self.text_x)?;
         write!(f, "texty: {}", self.text_y)?;
-        if let Some(rgb) = &self.rgb {
-            write!(f, ", RGB: {}", rgb)?;
-        }
+        write!(f, ", RGB: {}", self.rgb)?;
+
         Ok(())
     }
 }

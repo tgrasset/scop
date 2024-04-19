@@ -33,7 +33,8 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             .translate(obj_data.center_x, obj_data.center_y, obj_data.center_z)
             .scale(obj_data.scale_x, obj_data.scale_y, obj_data.scale_z)
             .translate(obj_data.position_x, obj_data.position_y, obj_data.position_z);
-        
+        println!("MAtrix");
+        model.print();
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
             aspect_ratio = width as f32 / height as f32;
@@ -44,11 +45,13 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             gl::ClearColor(0.6, 0.6, 0.6 , 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             
+            let display_texture_location = gl::GetUniformLocation(glvar.shader_prgm_id, "displayTexture\0".as_ptr() as *const i8);
             if obj_data.display_texture {
-                gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
+                gl::Uniform1i(display_texture_location, 1);
             } else {
-                gl::BindTexture(gl::TEXTURE_2D, 0);
+                gl::Uniform1i(display_texture_location, 0);
             }
+            gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
             gl::UseProgram(glvar.shader_prgm_id);
 
             let model_location = gl::GetUniformLocation(glvar.shader_prgm_id, "model\0".as_ptr() as *const i8);
