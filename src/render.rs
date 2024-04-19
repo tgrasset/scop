@@ -16,29 +16,22 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
 
     let mut aspect_ratio = glvar.window.get_framebuffer_size().0 as f32 / glvar.window.get_framebuffer_size().1 as f32;
     
-    let eye_distance = obj_data.longest_distance * 2.0; // Adjust as needed
-    
-    let eye = Vec3::new(0.0, 0.0, eye_distance);
-    let target = Vec3::new(0.0, 0.0, 0.0);
-    let up = Vec3::new(0.0, 1.0, 0.0);
-    let view = look_at(eye, target, up);
+    let eye_distance = obj_data.longest_distance * 2.0; // Adjust as needed  
+    let view = look_at(eye_distance);
 
     let mut projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
-    println!("center : {}  {}  {}", obj_data.center_x, obj_data.center_y, obj_data.center_z);
 
     while !glvar.window.should_close() {
 
         process_events(&mut glvar.window, &glvar.events, &mut keys, obj_data);
+
         let mut model = Mat4::identity();
         model = model.translate(-obj_data.center_x, -obj_data.center_y, -obj_data.center_z);
         model = model.rotate_x(obj_data.orientation_x);
         model = model.rotate_y(obj_data.orientation_y);
         model = model.rotate_z(obj_data.orientation_z);
-        // println!("Model Matrix:");
-        // for row in model.data.iter() {
-            //     println!("{:?}", row);
-            // }
         model = model.translate(obj_data.center_x, obj_data.center_y, obj_data.center_z);
+        
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
             aspect_ratio = width as f32 / height as f32;
@@ -106,7 +99,10 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
     }
 }
 
-fn look_at(eye: Vec3, target: Vec3, up: Vec3) -> Mat4 {
+fn look_at(eye_distance: f32) -> Mat4 {
+    let eye = Vec3::new(0.0, 0.0, eye_distance);
+    let target = Vec3::new(0.0, 0.0, 0.0);
+    let up = Vec3::new(0.0, 1.0, 0.0);
     let forward = (target.sub(eye)).normalize();
     let right = up.cross(forward).normalize();
     let up = forward.cross(right);
