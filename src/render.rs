@@ -126,25 +126,25 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
 }
 
 fn look_at(eye_distance: f32) -> Mat4 {
-    let eye = Vec3::new(0.0, 0.0, eye_distance);
-    let target = Vec3::new(0.0, 0.0, 0.0);
+    let eye_position = Vec3::new(0.0, 0.0, eye_distance);
+    let eye_direction = Vec3::new(0.0, 0.0, 0.0);
     let up = Vec3::new(0.0, 1.0, 0.0);
-    let forward = (target.sub(eye)).normalize();
+    let forward = (eye_direction.sub(eye_position)).normalize();
     let right = up.cross(forward).normalize();
-    let up = forward.cross(right);
+    let up_relative_to_eye_direction = forward.cross(right);
 
     let mut result = Mat4::identity();
     result.0[0][0] = right.x;
     result.0[1][0] = right.y;
     result.0[2][0] = right.z;
-    result.0[0][1] = up.x;
-    result.0[1][1] = up.y;
-    result.0[2][1] = up.z;
+    result.0[0][1] = up_relative_to_eye_direction.x;
+    result.0[1][1] = up_relative_to_eye_direction.y;
+    result.0[2][1] = up_relative_to_eye_direction.z;
     result.0[0][2] = -forward.x;
     result.0[1][2] = -forward.y;
     result.0[2][2] = -forward.z;
-    result.0[3][0] = -right.dot(eye);
-    result.0[3][1] = -up.dot(eye);
-    result.0[3][2] = forward.dot(eye);
+    result.0[3][0] = -right.dot(eye_position);
+    result.0[3][1] = -up_relative_to_eye_direction.dot(eye_position);
+    result.0[3][2] = forward.dot(eye_position);
     result
 }
