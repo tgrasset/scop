@@ -1,4 +1,4 @@
-use gl::types::{ GLushort};
+use gl::types::GLushort;
 
 use crate::models::vec3::Vec3;
 

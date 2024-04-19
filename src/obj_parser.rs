@@ -87,8 +87,8 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace, index: u3
     
     let position = Vec3::new(xfloat, yfloat, zfloat);
     let rgb = generate_random_color(index);
-    let mut text_x: f32 = xfloat;
-    let mut text_y: f32 = yfloat;
+    let text_x: f32 = zfloat;
+    let text_y: f32 = yfloat;
     vertices.push(Vertex {position, rgb, text_x, text_y});
 
     Ok(())
@@ -97,7 +97,7 @@ fn add_vertex(vertices: &mut Vec<Vertex>, parts: &mut SplitWhitespace, index: u3
 fn add_face(faces: &mut Vec<Face>, parts: &mut SplitWhitespace) -> Result<(), Error> {
     let mut indices: Vec<GLushort> = Vec::new();
 
-    for (i, s) in parts.enumerate() {
+    for (_i, s) in parts.enumerate() {
         let index = match s.parse::<GLushort>() {
             Ok(value) => {
                 if value == 0 {
@@ -126,7 +126,7 @@ fn add_face(faces: &mut Vec<Face>, parts: &mut SplitWhitespace) -> Result<(), Er
     Ok(())
 }
 
-fn get_indices_array_from_faces (faces: &Vec<Face>) -> Vec<GLushort> {  // OULA ATTENTION BIZARRE
+fn get_indices_array_from_faces (faces: &Vec<Face>) -> Vec<GLushort> {
     let mut res = Vec::new();
     for face in faces {
         for &index in &face.indices {
@@ -185,8 +185,6 @@ fn get_center_and_size(vertices: &Vec<Vertex>) -> (f32, f32, f32, f32) {
 }
 
 fn generate_random_color(index: u32) -> Vec3 {
-    let r = ((index * 15451) % 255) as f32 / 255.0;
-    let g = ((index * 16267 + 127) % 255) as f32 / 255.0;  
-    let b = ((index * 16879 + 254) % 255) as f32 / 255.0;  
-    Vec3::new(r, g, b)
+    let gray = ((index * 15451) % 255) as f32 / 255.0;
+    Vec3::new(gray, gray, gray)
 }

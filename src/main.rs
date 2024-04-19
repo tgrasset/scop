@@ -27,7 +27,6 @@ fn main() {
             std::process::exit(1);
         }
     };
-    println!("OBJ data: {}", objdata);
     let mut glvar = match init_opengl::init_window(WIN_WIDTH, WIN_HEIGHT) {
         Ok(vars) => vars,
         Err(err) => {

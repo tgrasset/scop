@@ -12,21 +12,12 @@ impl std::fmt::Display for Vec3 {
 }
 
 impl Vec3 {
-    // Constructor
+
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
     }
 
-    // Addition of two Vec3s
-    pub fn add(self, other: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
-    }
 
-    // Subtraction of two Vec3s
     pub fn sub(self, other: Vec3) -> Vec3 {
         Vec3 {
             x: self.x - other.x,
@@ -35,30 +26,10 @@ impl Vec3 {
         }
     }
 
-    // Scalar multiplication of a Vec3
-    pub fn mul(self, scalar: f32) -> Vec3 {
-        Vec3 {
-            x: self.x * scalar,
-            y: self.y * scalar,
-            z: self.z * scalar,
-        }
-    }
-
-    // Scalar division of a Vec3
-    pub fn div(self, scalar: f32) -> Vec3 {
-        Vec3 {
-            x: self.x / scalar,
-            y: self.y / scalar,
-            z: self.z / scalar,
-        }
-    }
-
-    // Dot product of two Vec3s
     pub fn dot(self, other: Vec3) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
-    // Cross product of two Vec3s
     pub fn cross(self, other: Vec3) -> Vec3 {
         Vec3 {
             x: self.y * other.z - self.z * other.y,
@@ -67,12 +38,10 @@ impl Vec3 {
         }
     }
 
-    // Length (magnitude) of a Vec3
     pub fn length(self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
-    // Normalize a Vec3 (make its length 1)
     pub fn normalize(self) -> Vec3 {
         let length = self.length();
         Vec3 {

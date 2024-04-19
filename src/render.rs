@@ -1,10 +1,9 @@
 use crate::glfw::{Context, Key, Action};
-use std::hash::Hash;
 use std::sync::mpsc::Receiver;
 use std::collections::HashSet;
 
-use crate::models::obj_data::{self, ObjData};
-use crate::models::{gl_var::GlVar};
+use crate::models::obj_data:: ObjData;
+use crate::models::gl_var::GlVar;
 use crate::models::mat4::Mat4;
 use crate::models::vec3::Vec3;
 use crate::globals::*;
@@ -16,10 +15,9 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
 
     let mut aspect_ratio = glvar.window.get_framebuffer_size().0 as f32 / glvar.window.get_framebuffer_size().1 as f32;
     
-    let eye_distance = obj_data.longest_distance * 2.0; // Adjust as needed  
+    let eye_distance = obj_data.longest_distance * 2.0;  
     let view = look_at(eye_distance);
 
-    let mut projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
 
     while !glvar.window.should_close() {
 
@@ -32,13 +30,12 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             .rotate_y(obj_data.orientation_y)
             .rotate_z(obj_data.orientation_z)
             .translate(obj_data.center_x, obj_data.center_y, obj_data.center_z)
-            .scale(obj_data.scale_x, obj_data.scale_y, obj_data.scale_z)
             .translate(obj_data.position_x, obj_data.position_y, obj_data.position_z);
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
             aspect_ratio = width as f32 / height as f32;
         }
-        projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
+        let projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
             
         unsafe {
             gl::ClearColor(0.6, 0.6, 0.6 , 1.0);
@@ -125,24 +122,6 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
     }
     if keys.contains(&Key::E) {
         obj_data.position_z -= TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Kp4) {
-        obj_data.scale_x += TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Kp1) {
-        obj_data.scale_x -= TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Kp5) {
-        obj_data.scale_y += TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Kp2) {
-        obj_data.scale_y -= TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Kp6) {
-        obj_data.scale_z += TRANSFORM_SPEED;
-    }
-    if keys.contains(&Key::Kp3) {
-        obj_data.scale_z -= TRANSFORM_SPEED;
     }
 }
 
