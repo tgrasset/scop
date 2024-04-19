@@ -17,6 +17,12 @@ pub struct ObjData {
     pub orientation_x: f32,
     pub orientation_y: f32,
     pub orientation_z: f32,
+    pub position_x: f32,
+    pub position_y: f32,
+    pub position_z: f32,
+    pub scale_x: f32,
+    pub scale_y: f32,
+    pub scale_z: f32,
 }
 
 impl std::fmt::Display for ObjData {

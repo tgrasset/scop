@@ -25,12 +25,14 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
 
         process_events(&mut glvar.window, &glvar.events, &mut keys, obj_data);
 
-        let mut model = Mat4::identity();
-        model = model.translate(-obj_data.center_x, -obj_data.center_y, -obj_data.center_z);
-        model = model.rotate_x(obj_data.orientation_x);
-        model = model.rotate_y(obj_data.orientation_y);
-        model = model.rotate_z(obj_data.orientation_z);
-        model = model.translate(obj_data.center_x, obj_data.center_y, obj_data.center_z);
+        let model = Mat4::identity()
+            .translate(-obj_data.center_x, -obj_data.center_y, -obj_data.center_z)
+            .rotate_x(obj_data.orientation_x)
+            .rotate_y(obj_data.orientation_y)
+            .rotate_z(obj_data.orientation_z)
+            .translate(obj_data.center_x, obj_data.center_y, obj_data.center_z)
+            .scale(obj_data.scale_x, obj_data.scale_y, obj_data.scale_z)
+            .translate(obj_data.position_x, obj_data.position_y, obj_data.position_z);
         
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
@@ -43,6 +45,8 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             
             gl::BindTexture(gl::TEXTURE_2D, glvar.texture_id);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
             gl::UseProgram(glvar.shader_prgm_id);
 
             let model_location = gl::GetUniformLocation(glvar.shader_prgm_id, "model\0".as_ptr() as *const i8);
@@ -77,22 +81,58 @@ fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::Windo
         }
     }
     if keys.contains(&Key::Up) {
-        obj_data.orientation_x += ROTATION_SPEED;
+        obj_data.orientation_x += TRANSFORM_SPEED;
     }
     if keys.contains(&Key::Down) {
-        obj_data.orientation_x -= ROTATION_SPEED;
+        obj_data.orientation_x -= TRANSFORM_SPEED;
     }
     if keys.contains(&Key::Right) {
-        obj_data.orientation_y += ROTATION_SPEED;
+        obj_data.orientation_y += TRANSFORM_SPEED;
     }
     if keys.contains(&Key::Left) {
-        obj_data.orientation_y -= ROTATION_SPEED;
+        obj_data.orientation_y -= TRANSFORM_SPEED;
     }
     if keys.contains(&Key::Z) {
-        obj_data.orientation_z += ROTATION_SPEED;
+        obj_data.orientation_z += TRANSFORM_SPEED;
     }
     if keys.contains(&Key::X) {
-        obj_data.orientation_z -= ROTATION_SPEED;
+        obj_data.orientation_z -= TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::D) {
+        obj_data.position_x -= TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::A) {
+        obj_data.position_x += TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::W) {
+        obj_data.position_y += TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::S) {
+        obj_data.position_y -= TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Q) {
+        obj_data.position_z += TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::E) {
+        obj_data.position_z -= TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Kp4) {
+        obj_data.scale_x += TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Kp1) {
+        obj_data.scale_x -= TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Kp5) {
+        obj_data.scale_y += TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Kp2) {
+        obj_data.scale_y -= TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Kp6) {
+        obj_data.scale_z += TRANSFORM_SPEED;
+    }
+    if keys.contains(&Key::Kp3) {
+        obj_data.scale_z -= TRANSFORM_SPEED;
     }
     if keys.contains(&Key::Escape) {
         window.set_should_close(true);

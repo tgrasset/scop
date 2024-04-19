@@ -51,7 +51,13 @@ pub fn parse_obj_file(file_path: &str) -> Result<ObjData, Error> {
         longest_distance,
         orientation_x: 0.0,
         orientation_y: 0.0,
-        orientation_z: 0.0
+        orientation_z: 0.0,
+        position_x: 0.0,
+        position_y: 0.0,
+        position_z: 0.0,
+        scale_x: 1.0,
+        scale_y: 1.0,
+        scale_z: 1.0,
     })
 }
 
