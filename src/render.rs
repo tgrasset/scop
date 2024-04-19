@@ -15,8 +15,7 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
 
     let mut aspect_ratio = glvar.window.get_framebuffer_size().0 as f32 / glvar.window.get_framebuffer_size().1 as f32;
     
-    let eye_distance = obj_data.longest_distance * 2.0;  
-    let view = look_at(eye_distance);
+    let view = look_at(obj_data.longest_distance * 2.0);
 
 
     while !glvar.window.should_close() {
@@ -38,7 +37,7 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
         let projection = Mat4::perspective(FOV, aspect_ratio, NEAR, FAR);
             
         unsafe {
-            gl::ClearColor(0.6, 0.6, 0.6 , 1.0);
+            gl::ClearColor(0.4, 0.2, 0.7 , 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
             
             let display_texture_location = gl::GetUniformLocation(glvar.shader_prgm_id, "displayTexture\0".as_ptr() as *const i8);
