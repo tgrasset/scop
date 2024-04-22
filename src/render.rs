@@ -67,7 +67,6 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
 fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>, keys: &mut HashSet<Key>, obj_data: &mut ObjData) {
     for (_, event) in glfw::flush_messages(events) {
         match event {
-            // match viewport to window size if changed
             glfw::WindowEvent::FramebufferSize(width, height) => {
                 unsafe { gl::Viewport(0, 0, width, height) }
             }
