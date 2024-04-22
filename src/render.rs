@@ -17,7 +17,6 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
     
     let view = look_at(obj_data.longest_distance * 2.0);
 
-
     while !glvar.window.should_close() {
 
         process_events(&mut glvar.window, &glvar.events, &mut keys, obj_data);
@@ -29,7 +28,7 @@ pub fn render_loop(glvar: &mut GlVar, vao: &u32, obj_data: &mut ObjData) {
             .rotate_y(obj_data.orientation_y)
             .rotate_z(obj_data.orientation_z)
             .translate(obj_data.center_x, obj_data.center_y, obj_data.center_z)
-            .translate(obj_data.position_x, obj_data.position_y, obj_data.position_z);
+            .translate(obj_data.position_x - obj_data.center_x, obj_data.position_y - obj_data.center_y, obj_data.position_z - obj_data.center_z);
         let (width, height) = glvar.window.get_framebuffer_size();
         if height != 0 {
             aspect_ratio = width as f32 / height as f32;
